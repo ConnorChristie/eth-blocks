@@ -11,8 +11,6 @@ import {
   Badge,
 } from 'tabler-react';
 
-abiDecoder.addABI(require('../Orders.json').abi);
-
 const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
 
@@ -33,16 +31,20 @@ export default class TransactionRow extends Component {
 
     web3.eth.getTransaction(hash).then(transaction => {
       const method = abiDecoder.decodeMethod(transaction.input);
-      
+      let state = {
+        from: transaction.from,
+        to: transaction.to
+      };
+
       if (method) {
-        this.setState({ method });
+        state.method = method;
       }
+
+      this.setState(state);
     });
 
     web3.eth.getTransactionReceipt(hash).then(receipt => {
       this.setState({
-        from: receipt.from,
-        to: receipt.to,
         gas: receipt.gasUsed,
         contractAddress: receipt.contractAddress,
       });
@@ -61,7 +63,7 @@ export default class TransactionRow extends Component {
           <Link to={`/transaction/${hash}`} title={hash}><Text muted={true}>{hash.substring(0, 15)}...</Text></Link>
         </Table.Col>
         <Table.Col>
-          {from.substring(0, 15)}...
+          {(from || '').substring(0, 15)}...
         </Table.Col>
         <Table.Col>
           {to
@@ -73,7 +75,10 @@ export default class TransactionRow extends Component {
           {gas}
         </Table.Col>
         <Table.Col className='text-nowrap'>
-          <Moment format='MMM DD, h:mma'>{new Date(date * 1000)}</Moment> ({block})
+          <Moment format='MMM DD, h:mma'>{new Date(date * 1000)}</Moment>
+        </Table.Col>
+        <Table.Col>
+          {block}
         </Table.Col>
         <Table.Col>
           {method

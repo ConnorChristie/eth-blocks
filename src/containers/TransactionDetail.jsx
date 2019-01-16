@@ -16,8 +16,6 @@ import {
 import Wrapper from './Wrapper';
 import './TransactionDetail.css';
 
-abiDecoder.addABI(require('../Orders.json').abi);
-
 const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
 
@@ -58,7 +56,7 @@ export default class TransactionDetail extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { hash } = this.state;
 
     web3.eth.getTransaction(hash).then(transaction => {
