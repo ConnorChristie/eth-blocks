@@ -1,8 +1,27 @@
 import Web3 from 'web3';
 import PromisifyBatchRequest from '../utils/PromisifyBatchRequest';
 
-const provider = new Web3.providers.HttpProvider('http://localhost:8545');
-const web3 = new Web3(provider);
+const web3 = new Web3('ws://localhost:8546');
+
+export const subscribe = () => async (dispatch) => {
+  const subscription = await web3.eth.subscribe('newBlockHeaders');
+
+  subscription.on('data', blockHeader => {
+    dispatch(setCurrentBlock(blockHeader.number));
+    dispatch(processBlock(blockHeader.number));
+  });
+}
+
+export const processBlock = (number) => async (dispatch) => {
+  const block = await web3.eth.getBlock(number);
+
+  const transactions = block.transactions.map(transaction => ({
+    block: number,
+    hash: transaction
+  }));
+
+  dispatch(addTransactions(transactions));
+}
 
 export const getLatestTransactions = () => async (dispatch, getState) => {
   const block = await web3.eth.getBlockNumber();

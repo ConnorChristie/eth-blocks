@@ -27,7 +27,7 @@ class Transactions extends Component {
   }
 
   _addContractAbi = () => {
-    this.props.addContract('Orders', require('../Orders.json').abi);
+    this.props.addContract('Migrations', require('../Migrations.json').abi);
   }
 
   render() {
